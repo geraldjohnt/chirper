@@ -8,6 +8,10 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::view('employees', 'livewire.pages.employee.employee-list')
+    ->middleware(['auth'])
+    ->name('employees');
+
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
