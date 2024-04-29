@@ -5,7 +5,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Illuminate\Database\Eloquent\Collection; 
 
-new class extends Component
+new #[Layout('layouts.app')] class extends Component
 {
     public Collection $employees;
 
@@ -14,11 +14,22 @@ new class extends Component
      */
     public function mount(): void
     {
+        $this->getEmployees();
+    }
+
+    public function deleteEmployee($id): void
+    {
+        Employee::findOrFail($id)->delete();
+        $this->getEmployees();
+    }
+
+    public function getEmployees(): void
+    {
         $this->employees = Employee::all();
     }
 }; ?>
 
-<x-app-layout>
+<div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Employees') }}
@@ -29,7 +40,7 @@ new class extends Component
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <x-primary-button class="ms-4" :href="route('create-employee')" wire:navigate>
+                    <x-primary-button class="ms-4" :href="route('employees.create')" wire:navigate>
                         {{ __('Add Employee') }}
                     </x-primary-button>
                 </div>
@@ -58,7 +69,7 @@ new class extends Component
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach(Employee::all() as $employee)
+                            @foreach($employees as $employee)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -81,18 +92,18 @@ new class extends Component
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            {{ $employee->role }}
+                                            {{ $employee->status }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $employee->status }}
+                                        {{ $employee->role }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $employee->email }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap  text-sm font-medium">
-                                        <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                        <a href="#" class="ml-2 text-red-600 hover:text-red-900">Delete</a>
+                                        <a href="update/{{ $employee->id }}" class="text-indigo-600 hover:text-indigo-900" wire:navigate>Edit</a>
+                                        <a href="#" wire:click="deleteEmployee({{ $employee->id }})" class="ml-2 text-red-600 hover:text-red-900">Delete</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -102,4 +113,4 @@ new class extends Component
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EmployeeController;
 
 Route::view('/', 'welcome');
 
@@ -11,14 +12,6 @@ Route::get('get-employees', [EmployeeController::class, 'index'])
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
-
-Route::view('employees', 'livewire.pages.employee.employee-list')
-    ->middleware(['auth'])
-    ->name('employees');
-
-Route::view('create-employee', 'livewire.pages.employee.create-employee')
-    ->middleware(['auth'])
-    ->name('create-employee');
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])

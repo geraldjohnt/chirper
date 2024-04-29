@@ -28,4 +28,13 @@ Route::middleware('auth')->group(function () {
 
     Volt::route('confirm-password', 'pages.auth.confirm-password')
         ->name('password.confirm');
+        
+    Volt::route('employee/list', 'pages.employee.employee-list')
+        ->name('employees.list');
+
+    Volt::route('employee/create', 'pages.employee.create-employee')
+        ->name('employees.create');
+
+    Volt::route('employee/update/{id}', 'pages.employee.create-employee')
+        ->name('employees.update');
 });

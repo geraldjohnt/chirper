@@ -6,7 +6,7 @@ use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new class extends Component
+new #[Layout('layouts.app')] class extends Component
 {
     public string $first_name = '';
     public string $last_name = '';
@@ -14,11 +14,24 @@ new class extends Component
     public string $title = '';
     public string $status = '';
     public string $role = '';
+    public int $id;
 
     /**
-     * Handle an incoming registration request.
+     * Mount the component.
      */
-    public function createEmployee(): void
+    public function mount($id = 0): void
+    {
+        $this->id = $id;
+
+        if ($id != 0) {
+            $this->getEmployee();
+        }
+    }
+
+    /**
+     * Handle an incoming creation request.
+     */
+    public function updateEmployee(): void
     {
         $validated = $this->validate([
             'first_name' => ['required', 'string', 'max:255'],
@@ -29,13 +42,54 @@ new class extends Component
             'role' => ['required', 'string', 'max:255'],
         ]);
 
-        event(new Registered($employee = Employee::create($validated)));
-
+        $employee = Employee::create($validated);
+        
         $this->redirect(route('employees', absolute: false), navigate: true);
+    }
+
+    public function getEmployee(): void
+    {
+        $employee = Employee::find($this->id);
+        $this->first_name = $employee->first_name;
+        $this->last_name = $employee->last_name;
+        $this->email = $employee->email;
+        $this->title = $employee->title;
+        $this->status = $employee->status;
+        $this->role = $employee->role;
+    }
+    
+    /**
+     * Handle an incoming creation request.
+     */
+    public function createOrUpdateEmployee(): void
+    {
+        $createEmployee = true;
+        $employee = Employee::find($this->id);
+
+        if ($employee) {
+            $createEmployee = false;
+        }
+
+        $validated = $this->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
+            'title' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:255'],
+            'role' => ['required', 'string', 'max:255'],
+        ]);
+
+        if ($createEmployee) {
+            $employee = Employee::create($validated);
+        } else {
+            $employee->update($validated);
+        }
+        
+        $this->redirect(route('employees.list', absolute: false), navigate: true);
     }
 }; ?>
 
-<x-app-layout>
+<div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Create Employee') }}
@@ -46,7 +100,7 @@ new class extends Component
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <form wire:submit="createEmployee">
+                    <form wire:submit="createOrUpdateEmployee">
                         <!-- First Name -->
                         <div>
                             <x-input-label for="first_name" :value="__('First Name')" />
@@ -98,4 +152,4 @@ new class extends Component
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>
